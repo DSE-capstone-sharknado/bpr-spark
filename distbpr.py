@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from tqdm import tqdm
 
 
 def _optimize_partition(user_ratings, prod_mat, nb_prods, l2_reg=0.001,

@@ -1,5 +1,5 @@
 from pyspark import SparkConf, SparkContext
-from bpr import optimizeMF
+from distbpr import optimizeMF
 
 conf = (SparkConf().setMaster("local")
                    .setAppName("BPR")

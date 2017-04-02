@@ -1,21 +1,30 @@
 import numpy as np
+from pyspark import SparkConf
+from pyspark import SparkConf, SparkContext
+from distbpr import optimizeMF
+
+conf = (SparkConf().setMaster("local")
+                   .setAppName("BPR")
+                   .set("spark.executor.memory", "10g"))
+sc = SparkContext(conf=conf)
+
 # Read ratings
 
 users = {}
 i = 0
-with open("/home/alfredo/Desktop/bpr/kaggle_users.txt") as f:
+with open("kaggle_users.txt") as f:
     for line in f:
         users[line.strip()] = i
         i += 1
 
 songs = {}
-with open("/home/alfredo/Desktop/bpr/kaggle_songs.txt") as f:
+with open("kaggle_songs.txt") as f:
     for line in f:
         song, id = line.strip().split(" ")
         songs[song] = int(id)
 
 ratings = []
-with open("/home/alfredo/Desktop/bpr/kaggle_visible_evaluation_triplets.txt") as f:
+with open("kaggle_visible_evaluation_triplets.txt") as f:
     for line in f:
         user, song, _ = line.strip().split("\t")
         ratings.append((users[user], songs[song]))
@@ -68,18 +77,31 @@ for user in final_ratings_by_user:
         train_ratings.append((user, song))
 
 # Write training elements in file
-with open("/home/alfredo/Desktop/bpr/training_ratings.txt", "w") as f:
+with open("training_ratings.txt", "w") as f:
     for rating in train_ratings:
         f.write("%d %d\n" % (rating[0], rating[1]))
 
 
+# Creating the user and prod matrices
+PREFIX = './'
 
+ratings = sc.textFile(
+    "%straining_ratings.txt" % PREFIX
+).map(
+    lambda line: line.split(" ")
+).map(
+    lambda x: map(int, x[:2])
+)
+
+userMat, prodMat = optimizeMF(ratings, 10, num_iter = 10, num_neg_samples = 30)
+np.savetxt("userMatrix.txt", userMat)
+np.savetxt("prodMatrix.txt", prodMat)
 ############################
 ### EVALUATION
 ############################
 # Read model matrices
-userMat = np.loadtxt("/home/alfredo/Desktop/bpr/userMatrix.txt")
-prodMat = np.loadtxt("/home/alfredo/Desktop/bpr/prodMatrix.txt")
+userMat = np.loadtxt("userMatrix.txt")
+prodMat = np.loadtxt("prodMatrix.txt")
 
 songs = {}
 for rating in final_ratings:
@@ -107,7 +129,7 @@ for user in final_ratings_by_user.keys()[:1000]: # Choose a sample of users (all
     auc_user = auc_user * 1.0 / num_ratings
     total_auc += auc_user
     total_users += 1
-    print ("User: %d, AUC: %f" % (total_users, auc_user))
+    #print ("User: %d, AUC: %f" % (total_users, auc_user))
 
 total_auc = total_auc / len(final_ratings_by_user.keys()[:1000])
 print ("Total AUC is %f" % total_auc)
