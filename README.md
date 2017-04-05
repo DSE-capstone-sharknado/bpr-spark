@@ -8,7 +8,7 @@ Bayesian Personalized Ranking for Spark
 
 **Intro to recommender systems in spark:** https://mahout.apache.org/users/algorithms/intro-cooccurrence-spark.html
 
-**brief presentation on BPR in spark:** https://stanford.edu/~rezab/dao/projects_slides/rodrigo_oliveira.pdf
+**brief presentation on BPR in spark:** https://stanford.edu/~rezab/classes/cme323/S16/projects_slides/rodrigo_oliveira.pdf
 
-**BPR in spark paper:** https://stanford.edu/~rezab/dao/projects_reports/rodrigo_oliveira.pdf
+**BPR in spark paper:** https://stanford.edu/~rezab/classes/cme323/S16/projects_reports/rodrigo_oliveira.pdf
 
